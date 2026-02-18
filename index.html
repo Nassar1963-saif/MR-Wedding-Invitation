@@ -1,1 +1,701 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>MR Wedding Invitation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Tangerine:wght@400;700&family=Birthstone&display=swap" rel="stylesheet">
+<style>
+
+/* ================== RESET ================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Marcellus', serif;
+  background: url('backgroundoo.png') center/cover no-repeat fixed;
+  background-size: cover;
+}
+
+.bg-section {
+  position: relative;
+  background-position: fixed; /* تأثير فاخر parallax */
+  color: white;
+  width: 100vw;
+  background: transparent;
+  margin-left: calc(-50vw + 50%);
+  background-position: center;
+  background-size: cover;
+}
+/* طبقة شفافة فوق الصورة عشان الكلام يبان */
+.bg-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2); /* بدل 0.6 */
+  z-index: 0;
+  display: none;
+}
+
+.bg-section > * {
+  position: relative;
+  z-index: 1;
+}
+/* ===== NEW ENVELOPE SYSTEM ===== */
+
+#intro {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.envelope-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  cursor: pointer;
+  perspective: 2000px;
+}
+.envelope-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* مهم عشان يملى الشاشة */
+  transition: all 0.8s ease;
+}
+
+.envelope-img.opened {
+  opacity: 0; /* مخفية في البداية */
+}
+
+.card-inside {
+  position: absolute;
+  width: 60%;
+  max-width: 600px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, 50%);
+  opacity: 0;
+  transition: all 0.8s ease;
+  z-index: 2;
+}
+
+.card-inside.show {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.card-inside.expand {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: none;
+  transition: 0.8s ease;
+}
+
+/* لف الظرف */
+.envelope-img.flip {
+  transform: rotateY(180deg);
+}
+
+/* الكارد تطلع */
+.card-inside.show {
+  opacity: 1;
+  transform: translate(-50%, -120%);
+}
+
+/* تكبير الكارد */
+.card-inside.expand {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: none;
+  transition: 0.8s ease;
+}
+
+/* BACK SIDE */
+.envelope-back,
+.envelope-front {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
+
+.envelope-back {
+  background-image: url("envelope-back.png");
+}
+
+.envelope-front {
+  background-image: url("envelope-front.png");
+  transform: rotateY(180deg);
+}
+
+/* FLIP */
+.envelope {
+    transition: transform 1s ease;
+}
+.envelope.flip {
+  transform: rotateY(180deg);
+}
+
+/* CARD INSIDE */
+.card-inside {
+  position: absolute;
+  width: 300px;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  transition: 1.2s ease;
+  z-index: -1;
+  border-radius: 8px;
+}
+
+/* لما يفتح */
+.envelope.open .card-inside {
+  transform: translateX(-50%) translateY(-120%);
+}
+
+/* لما تكبر */
+.card-inside.expand {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  transform: none;
+  z-index: 9998;
+  transition: 1s ease;
+}
+
+.envelope.open .card-inside {
+  transform: translateX(-50%) translateY(-120%);
+}
+/* ================== MAIN SITE ================== */
+#main { display: none; }
+.reveal-item {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal-item.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* ---------- HERO ---------- */
+.hero {
+  min-height: 100vh;
+  background: url('card.png') center/cover no-repeat;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.hero small {
+  letter-spacing: 4px;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+
+.hero .date {
+  display: flex;
+  flex-direction: column;
+  font-size: 64px;
+  line-height: 1.2;
+  letter-spacing: 6px;
+  font-weight: 600;
+}
+
+.hero .date span {
+  font-size: 36px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+/* COUNTDOWN */
+.countdown-section {
+  text-align: center;
+  margin: 80px 0;
+}
+
+.countdown-title {
+  color: #ffffff;
+  border-bottom: 1px solid #ffffff;
+  padding-bottom: 4px;
+  padding: 14px 46px;
+  border: 1px #ffffff;
+  letter-spacing: 5px;
+  font-family: 'Tangerine', cursive;
+  display: inline-block;
+  font-size: 40px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+}
+
+.countdown-subtitle {
+  display: block;
+  font-family: 'Marcellus', serif;
+  font-size: 14px;
+  margin-top: 10px;
+  letter-spacing: 2px;
+  text-transform: none;
+}
+
+.countdown-container {
+  display: grid;
+  grid-template-columns: repeat(2, 140px);
+  gap: 25px;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
+
+.time-box {
+  background: rgba(255, 255, 255, 0.8);
+  border:1px solid #ffffff;
+  border-radius: 12px;
+  padding: 25px 30px;
+  width: 120px;
+}
+
+.time-box span {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.time-box p {
+  margin-top: 8px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+/* ---------- SECTIONS ---------- */
+section {
+  min-height: 100vh;
+  padding: 100px 20px;
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.section-title {
+  padding: 14px 46px;
+  border: 1px solid #ffffff;
+  letter-spacing: 5px;
+  font-family: 'Cinzel', serif;
+  margin-bottom: 60px;
+}
+.timeline-title {
+  font-family: 'Tangerine', cursive;
+  font-size: 60px;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 60px;
+}
+.timeline-image-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+.timeline-image {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 20px;
+}
+
+/* ================== CELEBRATION SECTION ================== */
+
+.celebration-title {
+  font-family: 'Tangerine', cursive;
+  font-size: 42px;
+  letter-spacing: 3px;
+  padding: 14px 46px;
+  margin-bottom: 60px;
+  color: #ffffff;
+}
+
+.celebration-box {
+  background: rgba(255,255,255,0.9);
+  padding: 40px 30px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+}
+
+.celebration-box h3 {
+  font-family: 'Marcellus', serif;
+  font-size: 22px;
+  color: #000;
+  margin-bottom: 20px;
+}
+
+.time-range {
+  font-size: 16px;
+  color: #000;
+  margin-bottom: 20px;
+}
+
+.address {
+  font-size: 14px;
+  color: #000;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.map-visual {
+  position: relative;
+  display: block;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.map-visual img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  transition: 0.4s ease;
+}
+
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  letter-spacing: 1px;
+  opacity: 0;
+  transition: 0.4s ease;
+}
+
+/* Hover Effect */
+.map-visual:hover img {
+  transform: scale(1.05);
+}
+
+.map-visual:hover .map-overlay {
+  opacity: 1;
+}
+
+.map-link {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  font-size: 16px;
+  color: #000;
+  border-bottom: 1px solid #000;
+}
+
+/* ================== INFO SECTION ================== */
+
+.info-section {
+  text-align: center;
+  padding: 120px 20px;
+}
+
+.info-title {
+  font-family: 'Tangerine', cursive;
+  font-size: 60px;
+  color: #ffffff;
+  margin-bottom: 60px;
+}
+
+.info-box {
+  background: rgba(255,255,255,0.9);
+  padding: 50px 35px;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: 0 auto 80px auto;
+}
+
+.info-heading {
+  font-family: 'Marcellus', serif;
+  font-size: 24px;
+  margin: 40px 0 20px 0;
+  color: #000;
+}
+
+.info-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #000;
+}
+
+.see-you {
+  font-family: 'Birthstone', cursive;
+  font-size: 55px;
+  color: #ffffff;
+  margin-top: 40px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="envelope-wrapper" onclick="openEnvelope()">
+    <img src="envelope-front.png" class="envelope-img" id="envelopeFront">
+    <img src="envelope-opened.png" class="envelope-img opened" id="envelopeOpened">
+    <img src="card.png" class="card-inside" id="cardInside">
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<section class="hero">
+ </section>
+
+
+  <!-- Countdown -->
+<section class="countdown-section bg-section reveal">
+<div class="countdown-title reveal-item">
+  Countdown
+  <span class="countdown-subtitle reveal-item">
+    To The Most Special Day Of Our Lives
+  </span>
+</div>
+
+  <div class="countdown-container reveal-item">
+    <div class="time-box">
+      <span id="days">00</span>
+      <p>Days</p>
+    </div>
+
+    <div class="time-box reveal-item">
+      <span id="hours">00</span>
+      <p>Hours</p>
+    </div>
+
+    <div class="time-box reveal-item">
+      <span id="minutes">00</span>
+      <p>Minutes</p>
+    </div>
+
+    <div class="time-box reveal-item">
+      <span id="seconds">00</span>
+      <p>Seconds</p>
+    </div>
+  </div>
+
+</section>
+
+<section class="celebration bg-section reveal">
+
+  <div class="celebration-title reveal-item">Let's Celebrate</div>
+
+  <div class="celebration-box">
+    <h3 class="reveal-item">Tia-Vie Venue</h3>
+
+    <p class="time-range reveal-item">
+      From: 3:00 PM <br>
+      To: 6:00 PM
+    </p>
+    <p class="address reveal-item">
+  Address: دار ضباط الأمن المركزي - امتداد شارع الثورة - طريق السويس القديم بعد مدخل الرحاب بجوار معسكر مبارك - التجمع الأول
+    </p>
+<class="map-section">
+<a href="https://www.google.com/maps/place/Tia-Vie/@30.086243,31.479259,16z/data=!4m6!3m5!1s0x145819c71e709be7:0xe5e28169af11f4d8!8m2!3d30.0859984!4d31.479066!16s%2Fg%2F11skw9h4w7?hl=ar&entry=ttu"
+   target="_blank" class="map-visual">
+
+   <img src="map-image.png" alt="Tia-Vie Location">
+
+   <div class="map-overlay">
+     View Location on Google Maps
+   </div>
+
+</a>
+</div>
+</section>
+
+<section class="timeline-section bg-section reveal">
+
+  <div class="timeline-title reveal-item">Timeline</div>
+
+  <div class="timeline-image-wrapper reveal-item">
+    <img src="image.png" alt="image" class="timeline-image">
+  </div>
+</section>
+
+
+<section class="info-section bg-section reveal">
+
+  <div class="info-title reveal-item">Good to Know</div>
+
+  <div class="info-box">
+
+    <h3 class="info-heading reveal-item">Contact</h3>
+    <p class="info-text reveal-item">
+      If You Need Help Please Call<br><br>
+      Saif - 01147860469<br>
+      Zakaria - 01<br>
+      Youssef - 01
+    </p>
+
+    <h3 class="info-heading reveal-item">Dress Code</h3>
+    <p class="info-text reveal-item">
+      Jeans & Casual Attire Is Not Allowed
+    </p>
+
+    <h3 class="info-heading reveal-item">Note</h3>
+    <p class="info-text reveal-item">
+      We love your little ones, but unfortunately we are unable to accommodate children.
+    </p>
+
+  </div>
+
+  <div class="see-you reveal-item">SEE YOU SOON!!</div>
+
+</section>
+
+</div>
+
+<script>
+function openEnvelope() {
+  const front = document.getElementById("envelopeFront");
+  const opened = document.getElementById("envelopeOpened");
+  const card = document.getElementById("cardInside");
+
+  // 1️⃣ عمل حركة فتح الظرف
+  front.style.transition = "all 0.8s ease";
+  opened.style.transition = "all 0.8s ease";
+
+  front.style.opacity = 0;        // الظرف القديم يختفي تدريجي
+  opened.style.opacity = 1;       // الظرف الجديد يظهر تدريجي
+
+  // إضافة حركة slight rotate/scale عشان يكون واقعي
+  opened.style.transform = "rotateX(10deg) scale(1.05)";
+
+  // 2️⃣ نطلع الكارد بعد الفتح
+  setTimeout(() => {
+    card.classList.add("show");
+  }, 900);
+
+  // 3️⃣ نكبر الكارد
+  setTimeout(() => {
+    card.classList.add("expand");
+  }, 1600);
+
+  // 4️⃣ نفتح الموقع
+  setTimeout(() => {
+    document.getElementById("main").style.display = "block";
+    document.getElementById("intro").style.display = "none";
+  }, 2400);
+}
+
+const timelineContents = document.querySelectorAll('.timeline-content');
+
+function revealOnScroll() {
+  const triggerBottom = window.innerHeight * 0.85;
+
+  timelineContents.forEach(content => {
+    const contentTop = content.getBoundingClientRect().top;
+
+    if (contentTop < triggerBottom) {
+      content.classList.add('show');
+    }
+  });
+}
+
+window.addEventListener('scroll', revealOnScroll);
+revealOnScroll(); // تشغيل أول مرة
+
+// ================== COUNTDOWN ==================
+const countDownDate = new Date("Apr 17, 2026 15:00:00").getTime();
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  const distance = countDownDate - now;
+
+  if (distance < 0) {
+    clearInterval(countdown);
+    document.querySelector(".countdown-container").innerHTML = "It's The Big Day!";
+    return;
+  }
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000*60*60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000*60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  document.getElementById("days").innerText = days;
+  document.getElementById("hours").innerText = hours;
+  document.getElementById("minutes").innerText = minutes;
+  document.getElementById("seconds").innerText = seconds;
+}
+
+const countdown = setInterval(updateCountdown, 1000);
+updateCountdown();
+
+const sections = document.querySelectorAll("section");
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+
+      const items = entry.target.querySelectorAll(".reveal-item");
+
+      items.forEach((item, index) => {
+        setTimeout(() => {
+          item.classList.add("active");
+        }, index * 150); // 150ms فرق بين كل عنصر
+      });
+
+      observer.unobserve(entry.target);
+    }
+  });
+}, {
+  threshold: 0.2
+});
+
+sections.forEach(section => {
+  observer.observe(section);
+});
+
+</script>
+
+</body>
+</html>
