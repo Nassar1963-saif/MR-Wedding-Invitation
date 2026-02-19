@@ -67,7 +67,6 @@ html, body {
   z-index: 9999;
   overflow: hidden;
 }
-
 .envelope-wrapper {
   position: relative;
   width: 100vw;
@@ -80,7 +79,7 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* مهم عشان يملى الشاشة */
+  object-fit: cover; /* مهم عشان يملى الشاشة */
   transition: all 0.8s ease;
 }
 
@@ -90,16 +89,19 @@ html, body {
 
 .card-inside {
   position: absolute;
-  width: 60%;
-  max-width: 600px;
-  left: 50%;
+  width: 300px;
+  bottom: 0;
   top: 50%;
-  transform: translate(-50%, 50%);
+  left: 50%;
+  transform: translateX(-50%) translateY(50%);
   opacity: 0;
-  transition: all 0.8s ease;
-  z-index: 2;
+  transition: transform 0.8s ease, width 0.8s ease, height 0.8s ease, opacity 0.5s ease, z-index 0s;
+  z-index: 2; /* بداية الكارد */
 }
-
+.envelope.open .card-inside {
+  transform: translateX(-50%) translateY(-50%); /* يطلع من داخل الظرف */
+  opacity: 1;
+}
 .card-inside.show {
   opacity: 1;
   transform: translate(-50%, -50%);
@@ -242,7 +244,26 @@ html, body {
   letter-spacing: 2px;
   margin-top: 5px;
 }
+.scroll-arrow {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  animation: bounce 1.5s infinite;
+  transition: transform 0.3s ease;
+}
 
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 10px); }
+}
 /* COUNTDOWN */
 .countdown-section {
   text-align: center;
@@ -340,6 +361,13 @@ section {
   border-radius: 20px;
 }
 
+.see-you {
+  font-family: 'Birthstone', cursive;
+  font-size: 55px;
+  color: #ffffff;
+  margin-top: 40px;
+}
+
 /* ================== CELEBRATION SECTION ================== */
 
 .celebration-title {
@@ -427,48 +455,6 @@ section {
   border-bottom: 1px solid #000;
 }
 
-/* ================== INFO SECTION ================== */
-
-.info-section {
-  text-align: center;
-  padding: 120px 20px;
-}
-
-.info-title {
-  font-family: 'Tangerine', cursive;
-  font-size: 60px;
-  color: #ffffff;
-  margin-bottom: 60px;
-}
-
-.info-box {
-  background: rgba(255,255,255,0.9);
-  padding: 50px 35px;
-  border-radius: 12px;
-  max-width: 500px;
-  margin: 0 auto 80px auto;
-}
-
-.info-heading {
-  font-family: 'Marcellus', serif;
-  font-size: 24px;
-  margin: 40px 0 20px 0;
-  color: #000;
-}
-
-.info-text {
-  font-size: 16px;
-  line-height: 1.8;
-  color: #000;
-}
-
-.see-you {
-  font-family: 'Birthstone', cursive;
-  font-size: 55px;
-  color: #ffffff;
-  margin-top: 40px;
-}
-
 </style>
 </head>
 
@@ -487,7 +473,8 @@ section {
 <div id="main">
 
 <section class="hero">
- </section>
+<div class="scroll-arrow">↓</div>
+</section>
 
 
   <!-- Countdown -->
@@ -558,34 +545,6 @@ section {
   <div class="timeline-image-wrapper reveal-item">
     <img src="image.png" alt="image" class="timeline-image">
   </div>
-</section>
-
-
-<section class="info-section bg-section reveal">
-
-  <div class="info-title reveal-item">Good to Know</div>
-
-  <div class="info-box">
-
-    <h3 class="info-heading reveal-item">Contact</h3>
-    <p class="info-text reveal-item">
-      If You Need Help Please Call<br><br>
-      Saif - 01147860469<br>
-      Zakaria - 01<br>
-      Youssef - 01
-    </p>
-
-    <h3 class="info-heading reveal-item">Dress Code</h3>
-    <p class="info-text reveal-item">
-      Jeans & Casual Attire Is Not Allowed
-    </p>
-
-    <h3 class="info-heading reveal-item">Note</h3>
-    <p class="info-text reveal-item">
-      We love your little ones, but unfortunately we are unable to accommodate children.
-    </p>
-
-  </div>
 
   <div class="see-you reveal-item">SEE YOU SOON!!</div>
 
@@ -599,31 +558,26 @@ function openEnvelope() {
   const opened = document.getElementById("envelopeOpened");
   const card = document.getElementById("cardInside");
 
-  // 1️⃣ عمل حركة فتح الظرف
+  // فتح الظرف
   front.style.transition = "all 0.8s ease";
   opened.style.transition = "all 0.8s ease";
+  front.style.opacity = 0;
+  opened.style.opacity = 1;
+  opened.style.transform = "rotateX(10deg)";
 
-  front.style.opacity = 0;        // الظرف القديم يختفي تدريجي
-  opened.style.opacity = 1;       // الظرف الجديد يظهر تدريجي
 
-  // إضافة حركة slight rotate/scale عشان يكون واقعي
-  opened.style.transform = "rotateX(10deg) scale(1.05)";
 
-  // 2️⃣ نطلع الكارد بعد الفتح
+  // 2️⃣ بعد انتهاء الحركة، يظهر الكارد فوق الظرف في المكان الصح
   setTimeout(() => {
-    card.classList.add("show");
-  }, 900);
+    card.style.zIndex = 9999; // فوق الظرف
+    card.style.transform = "translateX(0)"; // ثابت في مكانه الصحيح
+  }, 1000);
 
-  // 3️⃣ نكبر الكارد
-  setTimeout(() => {
-    card.classList.add("expand");
-  }, 1600);
-
-  // 4️⃣ نفتح الموقع
+  // فتح الموقع الرئيسي بعد 1 ثانية
   setTimeout(() => {
     document.getElementById("main").style.display = "block";
     document.getElementById("intro").style.display = "none";
-  }, 2400);
+  }, 800);
 }
 
 const timelineContents = document.querySelectorAll('.timeline-content');
@@ -695,8 +649,46 @@ sections.forEach(section => {
   observer.observe(section);
 });
 
+const indicator = document.querySelector(".scroll-indicator");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 50) {
+    indicator.style.opacity = "0";
+  } else {
+    indicator.style.opacity = "1";
+  }
+});
+
+const arrow = document.querySelector(".scroll-arrow");
+
+function checkScroll() {
+  const scrollTop = window.scrollY;
+  const windowHeight = window.innerHeight;
+  const fullHeight = document.body.scrollHeight;
+
+  if (scrollTop + windowHeight >= fullHeight - 10) {
+    arrow.textContent = "↑";
+  } else {
+    arrow.textContent = "↓";
+  }
+}
+
+window.addEventListener("scroll", checkScroll);
+
+arrow.addEventListener("click", () => {
+  if (arrow.textContent === "↓") {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
+    });
+  } else {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
+});
 </script>
 
 </body>
-
 </html>
