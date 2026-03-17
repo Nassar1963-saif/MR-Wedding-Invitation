@@ -510,14 +510,248 @@ section {
 
 </section>
 
-<section class="timeline-section bg-section reveal">
+<!-- ===== Leave a Wish Section (put this after the Timeline section) ===== -->
+<section id="leave-wish" class="bg-section reveal">
+  <div class="wish-card reveal-item" aria-live="polite">
+    <h2>Leave a Wish</h2>
+    <p class="wish-sub">We would love to hear your wishes for our special day</p>
 
-  <div class="timeline-title reveal-item">Timeline</div>
+    <form id="wishForm" autocomplete="off">
+      <label for="name">YOUR NAME</label>
+      <input id="name" name="name" type="text" placeholder="Your Name" required>
 
-  <div class="timeline-image-wrapper reveal-item">
-    <img src="image.png" alt="image" class="timeline-image">
+      <label for="message">YOUR MESSAGE</label>
+      <textarea id="message" name="message" rows="6" placeholder="Write your message..." required></textarea>
+
+
+      <div class="form-actions">
+        <button type="submit" id="sendBtn">Send Wishes</button>
+      </div>
+
+      <p id="wishMsg" class="wish-msg" role="status" aria-live="polite"></p>
+    </form>
+
+    <hr>
+    <div class="admin-row">
+      <button id="openAdmin">Open Wishes (admin)</button>
+    </div>
   </div>
 </section>
+
+<!-- Admin modal / export UI (hidden) -->
+<div id="adminModal" class="admin-modal" aria-hidden="true">
+  <div class="admin-panel">
+    <h3>Saved Wishes (Local)</h3>
+    <div id="wishesList" class="wishes-list"></div>
+    <div class="admin-actions">
+      <button id="exportCsv">Export CSV</button>
+      <button id="clearLocal">Clear Local Storage</button>
+      <button id="closeAdmin">Close</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===== Leave-a-wish styles (minimal & matching your look) ===== */
+#wishForm { display: flex; flex-direction: column; gap: 12px; }
+.wish-card {
+  max-width: 380px;
+  margin: 20px auto 80px;
+  background: #fff;
+  color: #111;
+  padding: 26px;
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  text-align: left;
+  font-family: 'Marcellus', serif;
+}
+.wish-card h2 { font-family: 'Tangerine', cursive; font-size: 40px; margin-bottom: 6px; text-align:center; }
+.wish-sub { text-align:center; margin-bottom: 12px; color:#666; font-size:14px; }
+.wish-card label { font-weight:700; font-size:12px; letter-spacing:0.6px; color:#333; }
+.wish-card input, .wish-card textarea, .wish-card select {
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  font-size:14px;
+  background:#fafafa;
+  outline:none;
+}
+.wish-card textarea { resize:vertical; min-height:110px; }
+.form-actions { display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:6px; }
+button#sendBtn {
+  background:#000; color:#fff; border:none; padding:12px 18px; border-radius:24px; cursor:pointer;
+}
+button.ghost { background:transparent; border:1px solid #bbb; padding:10px 14px; border-radius:24px; cursor:pointer; }
+.wish-msg { margin-top:10px; color:green; font-weight:600; font-size:14px; }
+
+/* Admin modal */
+.admin-modal {
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.6); z-index:99999;
+}
+.admin-modal[aria-hidden="false"]{ display:flex; }
+.admin-panel {
+  background:#fff; padding:20px; width:720px; max-width:95%; border-radius:12px; color:#111;
+}
+.wishes-list { max-height:300px; overflow:auto; margin:12px 0; border:1px dashed #ddd; padding:10px; border-radius:8px; background:#fafafa; }
+.wish-item { padding:8px; border-bottom:1px solid #eee; font-size:14px; }
+.admin-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.admin-actions button { padding:8px 12px; border-radius:8px; cursor:pointer; border:none; background:#111;color:#fff; }
+.admin-actions button[aria-label="clear"]{ background:#d9534f; }
+</style>
+
+<script>
+/*
+  How to use:
+  - If you want to send to Google Form, set GOOGLE_FORM_ACTION to the form's POST URL
+    and map the field names in GOOGLE_FIELD_MAP.
+    (Instructions below in comments.)
+  - Otherwise leave GOOGLE_FORM_ACTION = https://docs.google.com/forms/d/e/1FAIpQLSeJKrdJBPtODfEb63e55FzkIV2HQqbtM_vrUwTXPvC1t1n30A/formResponse?usp=header
+*/
+
+/* ---------- CONFIG ---------- */
+// If you want to POST to an existing Google Form, paste the form action URL here.
+// Example: 'https://docs.google.com/forms/d/e/FORM_ID/formResponse'
+const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSeJKrdJBPtODfEb63e55FzkIV2HQqbtM_vrUwTXPvC1t1n30A/formResponse";
+
+const GOOGLE_FIELD_MAP = {
+  name: "entry.581935463",
+  message: "entry.1891593633"
+};
+
+const form = document.getElementById("wishForm");
+const sendBtn = document.getElementById("sendBtn");
+const msgP = document.getElementById("wishMsg");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+    const data = {
+    name: form.name.value.trim(),
+    message: form.message.value.trim(),
+  };
+
+  if (!data.name || !data.message) {
+    msgP.innerText = "Please fill all fields";
+    return;
+  }
+
+  sendBtn.disabled = true;
+  sendBtn.innerText = "Sending...";
+
+  const formData = new URLSearchParams();
+  formData.append(GOOGLE_FIELD_MAP.name, data.name);
+  formData.append(GOOGLE_FIELD_MAP.message, data.message);
+
+  try {
+    await fetch(GOOGLE_FORM_ACTION, {
+      method: "POST",
+      body: formData,
+      mode: "no-cors"
+    });
+
+    msgP.innerText = "Sent ❤️";
+    form.reset();
+
+  } catch (err) {
+    msgP.innerText = "Error sending";
+  }
+
+  sendBtn.disabled = false;
+  sendBtn.innerText = "Send Wishes";
+});
+const ADMIN_KEY = "wishes_storage";
+
+function loadLocalWishes() {
+  return JSON.parse(localStorage.getItem(ADMIN_KEY) || "[]");
+}
+
+function saveLocalWishes(arr) {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(arr));
+}
+
+/* ---------- ADMIN UI (view / export) ---------- */
+const admin = document.getElementById('adminModal');
+const openAdminBtn = document.getElementById('openAdmin');
+const closeAdminBtn = document.getElementById('closeAdmin');
+const wishesList = document.getElementById('wishesList');
+const exportCsvBtn = document.getElementById('exportCsv');
+const clearLocalBtn = document.getElementById('clearLocal');
+
+function renderWishes() {
+  const arr = loadLocalWishes();
+  if (arr.length === 0) {
+    wishesList.innerHTML = '<div style="padding:8px;color:#555">No saved wishes.</div>';
+    return;
+  }
+  wishesList.innerHTML = arr.map((w, i) => `
+    <div class="wish-item">
+      <strong>#${i+1}</strong> — <em>${new Date(w.ts).toLocaleString()}</em><br>
+      <strong>Name:</strong> ${escapeHtml(w.name)}<br>
+      <strong>Message:</strong> ${escapeHtml(w.message)}
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s='') {
+  return String(s).replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+openAdminBtn.addEventListener('click', () => {
+  renderWishes();
+  admin.setAttribute('aria-hidden', 'false');
+  admin.style.display = 'flex';
+});
+
+closeAdminBtn.addEventListener('click', () => {
+  admin.setAttribute('aria-hidden', 'true');
+  admin.style.display = 'none';
+});
+
+exportCsvBtn.addEventListener('click', () => {
+  const arr = loadLocalWishes();
+  if (!arr.length) return alert('No entries to export.');
+  const header = ['timestamp','name','relationship','message'];
+  const rows = arr.map(r => [
+    JSON.stringify(r.ts || ''),
+    JSON.stringify(r.name || ''),
+    JSON.stringify(r.relationship || ''),
+    JSON.stringify(r.message || '')
+  ].join(','));
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'wishes_export.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+clearLocalBtn.addEventListener('click', () => {
+  if (!confirm('Clear all locally saved wishes? This cannot be undone.')) return;
+  localStorage.removeItem(ADMIN_KEY);
+  renderWishes();
+});
+
+/* close modal when clicking backdrop */
+admin.addEventListener('click', (ev) => {
+  if (ev.target === admin) {
+    admin.setAttribute('aria-hidden','true');
+    admin.style.display = 'none';
+  }
+});
+
+/* keyboard escape */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && admin.getAttribute('aria-hidden') === 'false') {
+    admin.setAttribute('aria-hidden','true');
+    admin.style.display = 'none';
+  }
+});
+</script>
   
 <section class="celebration bg-section reveal">
 
@@ -687,11 +921,9 @@ arrow.addEventListener("click", () => {
   }
 });
 window.addEventListener("load", () => {
-  setTimeout(openEnvelope, 500);
+  setTimeout(openEnvelope, 800);
 });
 </script>
 
 </body>
 </html>
-
-
