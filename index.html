@@ -202,7 +202,7 @@ html, body {
   transform: translateX(-50%) translateY(-120%);
 }
 /* ================== MAIN SITE ================== */
-#main { display: none; }
+#main { display: block; }
 .reveal-item {
   opacity: 0;
   transform: translateY(40px);
@@ -460,14 +460,6 @@ section {
 
 <body>
 
-<!-- INTRO -->
-<div id="intro">
-  <div class="envelope-wrapper"></div>
-    <img src="envelope-front.png" class="envelope-img" id="envelopeFront">
-    <img src="envelope-opened.png" class="envelope-img opened" id="envelopeOpened">
-    <img src="card.png" class="card-inside" id="cardInside">
-  </div>
-</div>
 
 <!-- MAIN -->
 <div id="main">
@@ -790,26 +782,24 @@ function openEnvelope() {
   const opened = document.getElementById("envelopeOpened");
   const card = document.getElementById("cardInside");
 
-  // فتح الظرف
-  front.style.transition = "all 0.8s ease";
-  opened.style.transition = "all 0.8s ease";
+  // TRANSITION أطول
+  front.style.transition = "all 1.2s ease";
+  opened.style.transition = "all 1.2s ease";
+
+  // الفتح
   front.style.opacity = 0;
   opened.style.opacity = 1;
-  opened.style.transform = "rotateX(10deg)";
 
-
-
-  // 2️⃣ بعد انتهاء الحركة، يظهر الكارد فوق الظرف في المكان الصح
+  // الكارت يظهر بهدوء (بدون نطة)
   setTimeout(() => {
-    card.style.zIndex = 9999; // فوق الظرف
-    card.style.transform = "translateX(0)"; // ثابت في مكانه الصحيح
+    card.style.opacity = 1;
   }, 1000);
 
-  // فتح الموقع الرئيسي بعد 1 ثانية
+  // دخول الموقع بعد ما العين تشوف الانيميشن
   setTimeout(() => {
     document.getElementById("main").style.display = "block";
     document.getElementById("intro").style.display = "none";
-  }, 800);
+  }, 1500);
 }
 
 const timelineContents = document.querySelectorAll('.timeline-content');
@@ -919,9 +909,6 @@ arrow.addEventListener("click", () => {
       behavior: "smooth"
     });
   }
-});
-window.addEventListener("load", () => {
-  setTimeout(openEnvelope, 800);
 });
 </script>
 
